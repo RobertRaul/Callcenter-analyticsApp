@@ -221,7 +221,7 @@ export default function ProfileScreen() {
         <Text style={[styles.footer, { color: colors.textDisabled }]}>
           MACSA Clínica de Salud{'\n'}
           Call Center Analytics v1.0.0{'\n'}
-          192.168.11.3 · Issabel/Asterisk
+          metricas.macsalud.com · Issabel/Asterisk
         </Text>
 
       </ScrollView>

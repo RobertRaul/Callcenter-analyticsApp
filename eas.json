@@ -16,7 +16,7 @@
       },
       "env": {
         "APP_ENV": "development",
-        "API_URL": "http://192.168.11.3/api"
+        "API_URL": "https://metricas.macsalud.com/api"
       }
     },
     "preview": {
@@ -29,7 +29,7 @@
       },
       "env": {
         "APP_ENV": "staging",
-        "API_URL": "http://192.168.11.3/api"
+        "API_URL": "https://metricas.macsalud.com/api"
       }
     },
     "production": {
@@ -42,7 +42,7 @@
       },
       "env": {
         "APP_ENV": "production",
-        "API_URL": "http://192.168.11.3/api"
+        "API_URL": "https://metricas.macsalud.com/api"
       }
     }
   },

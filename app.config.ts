@@ -69,9 +69,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ],
 
   extra: {
-    apiUrl:      process.env.API_URL      ?? 'http://192.168.11.3/api',
+    apiUrl:      process.env.API_URL      ?? 'https://metricas.macsalud.com/api',
     apiVersion:  process.env.API_VERSION  ?? 'v1',
-    wsUrl:       process.env.WS_URL       ?? 'ws://192.168.11.3',
+    wsUrl:       process.env.WS_URL       ?? 'wss://metricas.macsalud.com',
     environment: process.env.APP_ENV      ?? 'development',
     fcmSenderId: '536689110655',
     eas: {

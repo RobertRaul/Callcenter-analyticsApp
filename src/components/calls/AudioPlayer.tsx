@@ -7,12 +7,10 @@ import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 // ← Usar legacy API para compatibilidad con Expo SDK 54
 import * as FileSystem from 'expo-file-system/legacy';
 import * as SecureStore from 'expo-secure-store';
-import { TOKEN_KEY } from '../../lib/apiClient';
+import { TOKEN_KEY, BASE_URL } from '../../lib/apiClient';
 import { useTheme } from '../../theme/ThemeContext';
 import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import logger from '../../lib/logger';
-
-const BASE_URL = 'http://192.168.11.3/api';
 
 interface AudioPlayerProps {
   callid: string;

@@ -1,8 +1,14 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 import logger from './logger';
 
-const BASE_URL = 'http://192.168.11.3/api';
+// URL base de la API — configurable vía app.config.ts (extra.apiUrl) o variable
+// de entorno API_URL. Por defecto apunta a PRODUCCIÓN (HTTPS).
+// Para probar contra la LAN, define API_URL=http://192.168.11.3/api en tu .env.
+export const BASE_URL =
+  (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
+  'https://metricas.macsalud.com/api';
 
 export const TOKEN_KEY = 'cc_access_token';
 
@@ -77,7 +83,7 @@ apiClient.interceptors.response.use(
     if (!error.response) {
       logger.error(
         'API:Network',
-        'Sin respuesta del servidor — verifica que 192.168.11.3 es accesible desde el dispositivo',
+        `Sin respuesta del servidor — verifica que ${BASE_URL} es accesible desde el dispositivo`,
         { message: error.message }
       );
     }

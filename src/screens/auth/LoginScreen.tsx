@@ -169,7 +169,7 @@ export default function LoginScreen() {
         </View>
 
         <Text style={[styles.footer, { color: colors.textDisabled }]}>
-          192.168.11.3 · Issabel Call Center
+          metricas.macsalud.com · Issabel Call Center
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

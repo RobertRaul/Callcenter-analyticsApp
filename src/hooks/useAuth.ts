@@ -47,8 +47,8 @@ export function useAuth(): UseAuthReturn {
       if (status === 401) message = 'Usuario o contraseña incorrectos.';
       else if (status === 422) message = 'Datos inválidos. Verifica el formulario.';
       else if (!axiosError?.response) {
-        message = 'No se pudo conectar al servidor.\nVerifica que estés en la misma red (192.168.11.3).';
-        logger.error('Auth', 'Error de red — el dispositivo no puede alcanzar 192.168.11.3');
+        message = 'No se pudo conectar al servidor.\nVerifica tu conexión a internet.';
+        logger.error('Auth', 'Error de red — el dispositivo no puede alcanzar el servidor');
       } else if (typeof detail === 'string') {
         message = detail;
       }

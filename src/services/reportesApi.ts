@@ -1,10 +1,8 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import * as SecureStore from 'expo-secure-store';
 import * as Sharing from 'expo-sharing';
-import { TOKEN_KEY } from '../lib/apiClient';
+import { TOKEN_KEY, BASE_URL } from '../lib/apiClient';
 import logger from '../lib/logger';
-
-const BASE_URL = 'http://192.168.11.3/api';
 
 export type ReportType   = 'general' | 'agents' | 'queues' | 'calls';
 export type ReportFormat = 'excel' | 'pdf';
