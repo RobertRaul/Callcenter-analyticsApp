@@ -39,3 +39,23 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# ─── Secretos / credenciales (NO subir a repo público) ───────────────────────
+credentials.json
+credentials/
+google-services.json
+google-services*.json
+GoogleService-Info.plist
+google-play-key.json
+*.keystore
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# IDE / herramientas locales
+.idea/
+.vscode/
+.claude/
+.fleet/
