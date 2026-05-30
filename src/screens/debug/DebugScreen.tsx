@@ -3,6 +3,7 @@ import {
   View, Text, FlatList, StyleSheet,
   TouchableOpacity, Share,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import logger from '../../lib/logger';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'all';
@@ -22,6 +23,7 @@ const LEVEL_BG: Record<string, string> = {
 };
 
 export default function DebugScreen() {
+  const navigation = useNavigation();
   const [filter, setFilter] = useState<LogLevel>('all');
   const [, forceUpdate] = useState(0);
 
@@ -49,7 +51,16 @@ export default function DebugScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Consola de logs</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.iconBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={[styles.iconBtnText, { fontSize: 26, lineHeight: 26 }]}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Consola de logs</Text>
+        </View>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={refresh} style={styles.iconBtn}>
             <Text style={styles.iconBtnText}>↺</Text>
@@ -133,6 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal:16, paddingTop:56, paddingBottom:12,
     backgroundColor:'#1a1f36', borderBottomWidth:0.5, borderBottomColor:'#2d3561',
   },
+  headerLeft: { flexDirection:'row', alignItems:'center', gap:8 },
   title: { color:'#e2e8f0', fontSize:18, fontWeight:'600' },
   headerActions: { flexDirection:'row', gap:6 },
   iconBtn: {
