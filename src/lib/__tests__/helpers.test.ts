@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { formatDuration } from '../format';
 import { getInitials } from '../text';
 import { normalizeAgentStatus } from '../apiHelpers';

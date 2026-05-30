@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { normalizeAgentStatus } from '../dashboardApi';
 
 // No tocamos la red: solo probamos la función pura de normalización.
