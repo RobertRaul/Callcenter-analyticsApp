@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { Colors } from '../theme/theme';
 import { useAlertsStore } from '../stores/alertsStore';
@@ -27,10 +28,13 @@ export type MainTabParamList = {
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-function TabIcon({ symbol, color, badge }: { symbol: string; color: string; badge?: number }) {
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
+function TabIcon({ name, color, focused, badge }: { name: IoniconName; color: string; focused: boolean; badge?: number }) {
+  const iconName = (focused ? name : `${name}-outline`) as IoniconName;
   return (
     <View style={{ position: 'relative' }}>
-      <Text style={{ fontSize: 19, color }}>{symbol}</Text>
+      <Ionicons name={iconName} size={23} color={color} />
       {badge && badge > 0 ? (
         <View style={{
           position: 'absolute', top: -4, right: -6,
@@ -69,19 +73,19 @@ function TabNavigator() {
       }}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen}
-        options={{ tabBarLabel:'Dashboard', tabBarIcon:({color}) => <TabIcon symbol="◉" color={color} /> }} />
+        options={{ tabBarLabel:'Dashboard', tabBarIcon:({color,focused}) => <TabIcon name="grid" color={color} focused={focused} /> }} />
       <Tab.Screen name="Calls"     component={CallsNavigator}
-        options={{ tabBarLabel:'Llamadas',  tabBarIcon:({color}) => <TabIcon symbol="☎" color={color} /> }} />
+        options={{ tabBarLabel:'Llamadas',  tabBarIcon:({color,focused}) => <TabIcon name="call" color={color} focused={focused} /> }} />
       <Tab.Screen name="Agents"    component={AgentsNavigator}
-        options={{ tabBarLabel:'Agentes',   tabBarIcon:({color}) => <TabIcon symbol="◈" color={color} /> }} />
+        options={{ tabBarLabel:'Agentes',   tabBarIcon:({color,focused}) => <TabIcon name="people" color={color} focused={focused} /> }} />
       <Tab.Screen name="Analisis"  component={AnalisisScreen}
-        options={{ tabBarLabel:'Análisis',  tabBarIcon:({color}) => <TabIcon symbol="◫" color={color} /> }} />
+        options={{ tabBarLabel:'Análisis',  tabBarIcon:({color,focused}) => <TabIcon name="analytics" color={color} focused={focused} /> }} />
       <Tab.Screen name="Reportes"  component={ReportesScreen}
-        options={{ tabBarLabel:'Reportes',  tabBarIcon:({color}) => <TabIcon symbol="⊞" color={color} /> }} />
+        options={{ tabBarLabel:'Reportes',  tabBarIcon:({color,focused}) => <TabIcon name="document-text" color={color} focused={focused} /> }} />
       <Tab.Screen name="Alerts"    component={AlertsScreen}
-        options={{ tabBarLabel:'Alertas',   tabBarIcon:({color}) => <TabIcon symbol="◬" color={color} badge={unreadCount} /> }} />
+        options={{ tabBarLabel:'Alertas',   tabBarIcon:({color,focused}) => <TabIcon name="notifications" color={color} focused={focused} badge={unreadCount} /> }} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen}
-        options={{ tabBarLabel:'Perfil',    tabBarIcon:({color}) => <TabIcon symbol="◎" color={color} /> }} />
+        options={{ tabBarLabel:'Perfil',    tabBarIcon:({color,focused}) => <TabIcon name="person-circle" color={color} focused={focused} /> }} />
     </Tab.Navigator>
   );
 }
