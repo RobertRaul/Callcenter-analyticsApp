@@ -8,8 +8,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CallsStackParamList } from '../../navigation/CallsNavigator';
 import { useCallsList } from '../../hooks/useCalls';
 import { CallsFilters, Call, FILTER_GROUPS, STATUS_MAP } from '../../services/callsApi';
-import { todayStr, toDateStr } from '../../lib/dateHelpers';
+import { todayStr } from '../../lib/dateHelpers';
 import CallItem from '../../components/calls/CallItem';
+import DateFilter from '../../components/ui/DateFilter';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../lib/apiClient';
 import { useTheme } from '../../theme/ThemeContext';
@@ -18,25 +19,9 @@ import AppHeader from '../../components/ui/AppHeader';
 
 type Props = NativeStackScreenProps<CallsStackParamList, 'CallsList'>;
 
-const QUICK_DATES = [
-  { label: 'Hoy',     days: 0  },
-  { label: '7 días',  days: 7  },
-  { label: '30 días', days: 30 },
-];
-
-function getRange(days: number) {
-  const today = new Date();
-  const end   = todayStr();
-  if (days === 0) return { start_date: end, end_date: end };
-  const start = new Date(today);
-  start.setDate(start.getDate() - days);
-  return { start_date: toDateStr(start), end_date: end };
-}
-
 export default function CallsListScreen({ navigation }: Props) {
   const { colors } = useTheme();
-  const [dateRange, setDateRange]       = useState(getRange(0));
-  const [activeQuick, setActiveQuick]   = useState(0);
+  const [dateRange, setDateRange]       = useState({ start_date: todayStr(), end_date: todayStr() });
   // filterGroup: null = todos, 'answered' = respondidas, 'missed' = no contestó
   const [filterGroup, setFilterGroup]   = useState<'answered' | 'missed' | null>(null);
   const [selectedQueue, setSelectedQueue] = useState<string | undefined>();
@@ -85,11 +70,6 @@ export default function CallsListScreen({ navigation }: Props) {
     if (call?.callid) navigation.navigate('CallDetail', { call });
   }, [navigation]);
 
-  const setQuick = (idx: number) => {
-    setActiveQuick(idx);
-    setDateRange(getRange(QUICK_DATES[idx].days));
-  };
-
   const toggleGroup = (type: 'answered' | 'missed') => {
     setFilterGroup(prev => prev === type ? null : type);
   };
@@ -105,6 +85,13 @@ export default function CallsListScreen({ navigation }: Props) {
       <AppHeader
         title="Llamadas"
         subtitle={`${filtered.length} registros`}
+      />
+
+      {/* Filtro de fechas */}
+      <DateFilter
+        start={dateRange.start_date}
+        end={dateRange.end_date}
+        onChange={(s, e) => setDateRange({ start_date: s, end_date: e })}
       />
 
       {/* Buscador */}
@@ -133,26 +120,7 @@ export default function CallsListScreen({ navigation }: Props) {
       <View style={[styles.filterBar, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
 
-          {/* Fecha rápida */}
-          {QUICK_DATES.map((f, i) => (
-            <TouchableOpacity
-              key={f.label}
-              style={[styles.chip,
-                { borderColor: colors.border, backgroundColor: colors.surfaceAlt },
-                activeQuick === i && { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '40' },
-              ]}
-              onPress={() => setQuick(i)}
-            >
-              <Text style={[styles.chipText,
-                { color: colors.textSecondary },
-                activeQuick === i && { color: Colors.primary, fontWeight:'600' },
-              ]}>{f.label}</Text>
-            </TouchableOpacity>
-          ))}
-
-          <View style={[styles.sep, { backgroundColor: colors.border }]} />
-
-          {/* Solo 2 filtros de tipo */}
+          {/* Filtros de tipo (Respondidas / No contestó) */}
           {FILTER_GROUPS.map(fg => {
             const isActive = filterGroup === fg.type;
             const count    = fg.type === 'answered' ? answeredCount : missedCount;

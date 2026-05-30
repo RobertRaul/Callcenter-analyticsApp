@@ -12,7 +12,11 @@ import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
 import Card from '../../components/ui/Card';
 import { Divider } from '../../components/ui/misc';
+import DateFilter from '../../components/ui/DateFilter';
+import { todayStr, weekStartStr } from '../../lib/dateHelpers';
 import { formatDuration } from '../../lib/format';
+
+interface TabDateProps { start: string; end: string; }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -31,9 +35,9 @@ const BADGE_COLORS = {
   star:   { color: Colors.primary, bg: Colors.primaryLight, darkColor: '#60B4E0', darkBg: '#0D2030' },
 };
 
-function RankingTab() {
+function RankingTab({ start, end }: TabDateProps) {
   const { colors, isDark } = useTheme();
-  const { data, isLoading } = useRanking();
+  const { data, isLoading } = useRanking(start, end);
 
   if (isLoading) return <LoadingSection />;
   if (!data) return null;
@@ -101,9 +105,9 @@ function RankingTab() {
 
 // ─── Tab SLA ──────────────────────────────────────────────────────────────────
 
-function SlaTab() {
+function SlaTab({ start, end }: TabDateProps) {
   const { colors } = useTheme();
-  const { data, isLoading } = useSla();
+  const { data, isLoading } = useSla(start, end);
 
   if (isLoading) return <LoadingSection />;
   if (!data) return null;
@@ -202,9 +206,9 @@ function SlaTab() {
 
 // ─── Tab Patrones ─────────────────────────────────────────────────────────────
 
-function PatronesTab() {
+function PatronesTab({ start, end }: TabDateProps) {
   const { colors } = useTheme();
-  const { data, isLoading } = usePatrones();
+  const { data, isLoading } = usePatrones(start, end);
 
   if (isLoading) return <LoadingSection />;
   if (!data) return null;
@@ -296,9 +300,9 @@ function PatronesTab() {
 
 const SHOW_HOURS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 
-function HeatmapTab() {
+function HeatmapTab({ start, end }: TabDateProps) {
   const { colors, isDark } = useTheme();
-  const { data, isLoading } = useHeatmap();
+  const { data, isLoading } = useHeatmap(start, end);
 
   if (isLoading) return <LoadingSection />;
   if (!data) return null;
@@ -391,9 +395,9 @@ function HeatmapTab() {
 
 // ─── Tab Abandono ─────────────────────────────────────────────────────────────
 
-function AbandonoTab() {
+function AbandonoTab({ start, end }: TabDateProps) {
   const { colors } = useTheme();
-  const { data, isLoading } = useAbandono();
+  const { data, isLoading } = useAbandono(start, end);
 
   if (isLoading) return <LoadingSection />;
   if (!data) return null;
@@ -539,6 +543,8 @@ export default function AnalisisScreen() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('ranking');
   const [refreshing, setRefreshing] = useState(false);
+  const [start, setStart] = useState(weekStartStr());
+  const [end, setEnd]     = useState(todayStr());
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -577,12 +583,15 @@ export default function AnalisisScreen() {
         })}
       </ScrollView>
 
+      {/* Filtro de fechas (aplica a todos los tabs) */}
+      <DateFilter start={start} end={end} onChange={(s, e) => { setStart(s); setEnd(e); }} />
+
       {/* Contenido del tab activo */}
-      {activeTab === 'ranking'  && <RankingTab  />}
-      {activeTab === 'sla'      && <SlaTab      />}
-      {activeTab === 'patrones' && <PatronesTab />}
-      {activeTab === 'heatmap'  && <HeatmapTab  />}
-      {activeTab === 'abandono' && <AbandonoTab />}
+      {activeTab === 'ranking'  && <RankingTab  start={start} end={end} />}
+      {activeTab === 'sla'      && <SlaTab      start={start} end={end} />}
+      {activeTab === 'patrones' && <PatronesTab start={start} end={end} />}
+      {activeTab === 'heatmap'  && <HeatmapTab  start={start} end={end} />}
+      {activeTab === 'abandono' && <AbandonoTab start={start} end={end} />}
     </View>
   );
 }

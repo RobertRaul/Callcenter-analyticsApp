@@ -9,6 +9,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
 
+  splash: {
+    image:           './assets/splash.png',
+    resizeMode:      'contain',
+    backgroundColor: '#2196C9',
+  },
+
   ios: {
     supportsTablet:   true,
     bundleIdentifier: 'com.macsalud.callcenter',
@@ -36,14 +42,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   plugins: [
-    [
-      'expo-splash-screen',
-      {
-        image:           './assets/splash.png',
-        resizeMode:      'contain',
-        backgroundColor: '#2196C9',
-      },
-    ],
     'expo-secure-store',
     'expo-audio',
     [
@@ -64,7 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           minSdkVersion:        24,
         },
         ios: {
-          deploymentTarget: '16.4',
+          deploymentTarget: '15.1',
         },
       },
     ],

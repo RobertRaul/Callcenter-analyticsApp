@@ -1,4 +1,3 @@
-/// <reference types="jest" />
 import { callsApi, STATUS_MAP, FILTER_GROUPS } from '../callsApi';
 
 // Mockeamos el cliente HTTP para probar el mapeo sin red real.
