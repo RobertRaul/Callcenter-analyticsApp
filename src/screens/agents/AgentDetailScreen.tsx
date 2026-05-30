@@ -8,6 +8,7 @@ import { AgentsStackParamList } from '../../navigation/AgentsNavigator';
 import { useAgentDetail, useAgentStatistics } from '../../hooks/useAgents';
 import { STATUS_CONFIG } from '../../components/agents/AgentCard';
 import AgentHourlyChart from '../../components/agents/AgentHourlyChart';
+import DateFilter from '../../components/ui/DateFilter';
 import { todayStr } from '../../lib/dateHelpers';
 import { formatDuration } from '../../lib/format';
 import { getInitials } from '../../lib/text';
@@ -49,8 +50,9 @@ export default function AgentDetailScreen({ route, navigation }: Props) {
   const { agent } = route.params;
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
 
-  const today    = todayStr();
-  const filters  = { start_date: today, end_date: today };
+  const [start, setStart] = useState(todayStr());
+  const [end, setEnd]     = useState(todayStr());
+  const filters  = { start_date: start, end_date: end };
 
   const { byQueue, hourly, history } = useAgentDetail(agent.agent, filters);
   const { data: allStats = [] } = useAgentStatistics(filters);
@@ -76,6 +78,8 @@ export default function AgentDetailScreen({ route, navigation }: Props) {
         <Text style={styles.headerTitle}>Detalle del agente</Text>
         <View style={{ width:40 }} />
       </View>
+
+      <DateFilter start={start} end={end} onChange={(s, e) => { setStart(s); setEnd(e); }} />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Perfil */}

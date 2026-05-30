@@ -14,6 +14,7 @@ import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
 import StatusPill, { STATUS_CONFIG_LIGHT, STATUS_CONFIG_DARK } from '../../components/ui/StatusPill';
 import { Divider } from '../../components/ui/misc';
+import DateFilter from '../../components/ui/DateFilter';
 import { todayStr } from '../../lib/dateHelpers';
 import { formatDuration } from '../../lib/format';
 import { getInitials } from '../../lib/text';
@@ -35,8 +36,10 @@ export default function AgentsListScreen({ navigation }: Props) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [search, setSearch] = useState('');
 
+  const [statsDate, setStatsDate] = useState(todayStr());
+
   const { data: agents = [], isLoading, isRefetching } = useRealtimeAgents();
-  const { data: stats = [] } = useAgentStatistics({ start_date: todayStr(), end_date: todayStr() });
+  const { data: stats = [] } = useAgentStatistics({ start_date: statsDate, end_date: statsDate });
 
   const statsMap = Object.fromEntries(stats.map(s => [s.agent, s]));
 
@@ -98,6 +101,9 @@ export default function AgentsListScreen({ navigation }: Props) {
         <StatusCard statusKey="paused"    />
         <StatusCard statusKey="offline"   />
       </View>
+
+      {/* Fecha de las estadísticas (la lista de agentes es en tiempo real) */}
+      <DateFilter mode="single" start={statsDate} end={statsDate} onChange={(s) => setStatsDate(s)} />
 
       {/* Buscador */}
       <View style={[styles.searchBar, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
