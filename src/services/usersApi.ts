@@ -1,6 +1,6 @@
 import apiClient from '../lib/apiClient';
 import { unwrapResponse } from '../lib/apiHelpers';
-import { AppUser, UserCreate, UserUpdate } from '../types';
+import { AppUser, UserCreate, UserUpdate, UserPasswordActionResponse } from '../types';
 import logger from '../lib/logger';
 
 // Backend (src/routes/users_routes.py):
@@ -18,13 +18,20 @@ export const usersApi = {
     return arr as AppUser[];
   },
 
-  create: async (payload: UserCreate): Promise<{ id?: number }> => {
+  // El backend genera la contraseña temporal y la envía por correo.
+  create: async (payload: UserCreate): Promise<UserPasswordActionResponse> => {
     const { data } = await apiClient.post('/users/create', payload);
-    return { id: data?.id };
+    return (data ?? {}) as UserPasswordActionResponse;
   },
 
   update: async (id: number, payload: UserUpdate): Promise<void> => {
     await apiClient.put(`/users/update/${id}`, payload);
+  },
+
+  // Admin: genera una nueva temporal y la envía por correo (must_change_password=1).
+  resetPassword: async (id: number): Promise<UserPasswordActionResponse> => {
+    const { data } = await apiClient.post(`/users/reset-password/${id}`);
+    return (data ?? {}) as UserPasswordActionResponse;
   },
 
   remove: async (id: number): Promise<void> => {

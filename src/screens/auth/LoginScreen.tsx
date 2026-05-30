@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, KeyboardAvoidingView,
-  Platform, ScrollView,
+  Platform, ScrollView, Modal, Alert,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../hooks/useAuth';
+import { authApi } from '../../services/authApi';
 import { useTheme } from '../../theme/ThemeContext';
 import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 
@@ -21,6 +22,24 @@ export default function LoginScreen() {
   const { login, isLoggingIn, error, clearError } = useAuth();
   const { colors, isDark, toggle } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen]     = useState(false);
+  const [forgotEmail, setForgotEmail]   = useState('');
+  const [forgotBusy, setForgotBusy]     = useState(false);
+
+  const handleForgot = async () => {
+    if (!forgotEmail.trim()) { Alert.alert('Correo requerido', 'Ingresa tu correo.'); return; }
+    setForgotBusy(true);
+    try {
+      await authApi.forgotPassword(forgotEmail.trim());
+    } catch {
+      // respuesta genérica de todos modos (no revelar si el correo existe)
+    } finally {
+      setForgotBusy(false);
+      setForgotOpen(false);
+      setForgotEmail('');
+      Alert.alert('Revisa tu correo', 'Si el correo está registrado, se envió una contraseña temporal con instrucciones de acceso.');
+    }
+  };
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -166,12 +185,58 @@ export default function LoginScreen() {
               : <Text style={styles.submitText}>Iniciar sesión</Text>
             }
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.forgotLink} onPress={() => setForgotOpen(true)}>
+            <Text style={[styles.forgotText, { color: Colors.primary }]}>¿Olvidaste tu contraseña?</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={[styles.footer, { color: colors.textDisabled }]}>
           metricas.macsalud.com · Issabel Call Center
         </Text>
       </ScrollView>
+
+      {/* Modal recuperar contraseña */}
+      <Modal visible={forgotOpen} transparent animationType="fade" onRequestClose={() => setForgotOpen(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Recuperar contraseña</Text>
+            <Text style={[styles.modalSub, { color: colors.textTertiary }]}>
+              Ingresa tu correo y te enviaremos una contraseña temporal.
+            </Text>
+            <TextInput
+              style={[styles.input, {
+                backgroundColor: isDark ? '#0D1117' : '#F8FAFC',
+                borderColor: colors.border, color: colors.text, marginBottom: Spacing.md,
+              }]}
+              placeholder="tu@correo.com"
+              placeholderTextColor={colors.textDisabled}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={forgotEmail}
+              onChangeText={setForgotEmail}
+            />
+            <View style={styles.modalBtns}>
+              <TouchableOpacity
+                style={[styles.modalCancel, { borderColor: colors.border }]}
+                onPress={() => setForgotOpen(false)}
+                disabled={forgotBusy}
+              >
+                <Text style={{ color: colors.textSecondary }}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalSend, { backgroundColor: Colors.primary }]}
+                onPress={handleForgot}
+                disabled={forgotBusy}
+              >
+                {forgotBusy
+                  ? <ActivityIndicator color="#FFF" size="small" />
+                  : <Text style={{ color: '#FFF', fontWeight: '600' }}>Enviar</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -229,4 +294,15 @@ const styles = StyleSheet.create({
   submitText:  { color:'#FFF', fontSize: Typography.base, fontWeight: Typography.semibold },
 
   footer: { fontSize: Typography.xs, textAlign:'center' },
+
+  forgotLink: { alignItems: 'center', marginTop: Spacing.md },
+  forgotText: { fontSize: Typography.sm, fontWeight: Typography.medium },
+
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)', padding: Spacing.xl },
+  modalCard:    { width: '100%', maxWidth: 360, borderRadius: Radius.lg, borderWidth: 0.5, padding: Spacing.xl },
+  modalTitle:   { fontSize: Typography.lg, fontWeight: Typography.semibold, marginBottom: 4 },
+  modalSub:     { fontSize: Typography.sm, marginBottom: Spacing.lg, lineHeight: 18 },
+  modalBtns:    { flexDirection: 'row', gap: Spacing.md },
+  modalCancel:  { flex: 1, paddingVertical: 12, borderRadius: Radius.md, borderWidth: 0.5, alignItems: 'center' },
+  modalSend:    { flex: 1, paddingVertical: 12, borderRadius: Radius.md, alignItems: 'center' },
 });

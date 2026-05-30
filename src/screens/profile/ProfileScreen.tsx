@@ -68,6 +68,7 @@ export default function ProfileScreen() {
     .split(' ').map((n: string) => n[0] ?? '').slice(0, 2).join('').toUpperCase();
 
   const permissions = profile?.permissions ?? {};
+  const isAdmin = Boolean(profile?.is_admin || (permissions as any)?.admin);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -179,26 +180,51 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        {/* Administración */}
-        <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Administración</Text>
+        {/* Seguridad — disponible para todos */}
+        <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Seguridad</Text>
         <Card noPadding>
           <TouchableOpacity
             style={styles.debugRow}
-            onPress={() => navigation.navigate('Users')}
+            onPress={() => navigation.navigate('ChangePassword')}
             activeOpacity={0.75}
           >
             <View style={[styles.themeIconWrap, { backgroundColor: Colors.primary + '15' }]}>
-              <Ionicons name="people" size={18} color={Colors.primary} />
+              <Ionicons name="key" size={18} color={Colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.themeLabel, { color: colors.text }]}>Gestión de usuarios</Text>
+              <Text style={[styles.themeLabel, { color: colors.text }]}>Cambiar contraseña</Text>
               <Text style={[styles.themeDesc, { color: colors.textTertiary }]}>
-                Crear, editar y restablecer contraseñas
+                Actualiza tu contraseña de acceso
               </Text>
             </View>
             <Text style={[styles.chevron, { color: colors.textDisabled }]}>›</Text>
           </TouchableOpacity>
         </Card>
+
+        {/* Administración — solo administradores */}
+        {isAdmin && (
+          <>
+            <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Administración</Text>
+            <Card noPadding>
+              <TouchableOpacity
+                style={styles.debugRow}
+                onPress={() => navigation.navigate('Users')}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.themeIconWrap, { backgroundColor: Colors.primary + '15' }]}>
+                  <Ionicons name="people" size={18} color={Colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.themeLabel, { color: colors.text }]}>Gestión de usuarios</Text>
+                  <Text style={[styles.themeDesc, { color: colors.textTertiary }]}>
+                    Crear, editar y restablecer contraseñas
+                  </Text>
+                </View>
+                <Text style={[styles.chevron, { color: colors.textDisabled }]}>›</Text>
+              </TouchableOpacity>
+            </Card>
+          </>
+        )}
 
         {/* Desarrollo */}
         {__DEV__ && (

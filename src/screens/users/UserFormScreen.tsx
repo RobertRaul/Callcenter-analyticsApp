@@ -5,8 +5,8 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useCreateUser, useUpdateUser, useDeleteUser } from '../../hooks/useUsers';
-import { AppUser, UserCreate, UserUpdate } from '../../types';
+import { useCreateUser, useUpdateUser, useDeleteUser, useResetPassword } from '../../hooks/useUsers';
+import { AppUser, UserCreate, UserUpdate, UserPasswordActionResponse } from '../../types';
 import { useTheme } from '../../theme/ThemeContext';
 import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 
@@ -26,6 +26,14 @@ function errMsg(e: unknown, fallback: string): string {
   return fallback;
 }
 
+// Mensaje según si el correo se envió o hay que entregar la temporal a mano.
+function credentialMsg(res: UserPasswordActionResponse, email: string): string {
+  if (res?.temp_password) {
+    return `No se pudo enviar el correo.\nContraseña temporal: ${res.temp_password}\n\nEntrégala al usuario; deberá cambiarla en su primer ingreso.`;
+  }
+  return `Se envió una contraseña temporal a ${email}.\nEl usuario deberá cambiarla en su primer ingreso.`;
+}
+
 export default function UserFormScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
@@ -36,13 +44,14 @@ export default function UserFormScreen() {
   const createM = useCreateUser();
   const updateM = useUpdateUser();
   const deleteM = useDeleteUser();
-  const busy = createM.isPending || updateM.isPending || deleteM.isPending;
+  const resetM  = useResetPassword();
+  const busy = createM.isPending || updateM.isPending || deleteM.isPending || resetM.isPending;
 
   const [username, setUsername] = useState(editing?.username ?? '');
   const [fullName, setFullName] = useState(editing?.full_name ?? '');
   const [email, setEmail]       = useState(editing?.email ?? '');
-  const [password, setPassword] = useState('');
   const [isActive, setIsActive] = useState(editing?.is_active ?? true);
+  const [isAdmin, setIsAdmin]   = useState(editing?.is_admin ?? false);
   const [perms, setPerms] = useState({
     access_dashboard: editing?.access_dashboard ?? true,
     access_calls:     editing?.access_calls ?? true,
@@ -55,8 +64,6 @@ export default function UserFormScreen() {
     if (!isEdit && !username.trim()) return 'El usuario es obligatorio';
     if (!fullName.trim()) return 'El nombre completo es obligatorio';
     if (!email.trim() || !emailOk(email.trim())) return 'Correo inválido';
-    if (!isEdit && password.length < 4) return 'La contraseña debe tener al menos 4 caracteres';
-    if (isEdit && password.length > 0 && password.length < 4) return 'La nueva contraseña debe tener al menos 4 caracteres';
     return null;
   }
 
@@ -70,9 +77,9 @@ export default function UserFormScreen() {
           email: email.trim(),
           full_name: fullName.trim(),
           is_active: isActive,
+          is_admin: isAdmin,
           ...perms,
         };
-        if (password.trim()) payload.password = password.trim();
         await updateM.mutateAsync({ id: editing.id, payload });
         Alert.alert('Listo', 'Usuario actualizado', [{ text: 'OK', onPress: () => navigation.goBack() }]);
       } else {
@@ -80,15 +87,37 @@ export default function UserFormScreen() {
           username: username.trim(),
           email: email.trim(),
           full_name: fullName.trim(),
-          password: password.trim(),
+          is_admin: isAdmin,
           ...perms,
         };
-        await createM.mutateAsync(payload);
-        Alert.alert('Listo', 'Usuario creado', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+        const res = await createM.mutateAsync(payload);
+        Alert.alert('Usuario creado', credentialMsg(res, email.trim()), [{ text: 'OK', onPress: () => navigation.goBack() }]);
       }
     } catch (e) {
       Alert.alert('Error', errMsg(e, 'No se pudo guardar el usuario'));
     }
+  }
+
+  function handleResetPassword() {
+    if (!editing) return;
+    Alert.alert(
+      'Restablecer contraseña',
+      `Se generará una nueva contraseña temporal para ${editing.full_name || editing.username} y se enviará a su correo. ¿Continuar?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Restablecer',
+          onPress: async () => {
+            try {
+              const res = await resetM.mutateAsync(editing.id);
+              Alert.alert('Listo', credentialMsg(res, editing.email));
+            } catch (e) {
+              Alert.alert('Error', errMsg(e, 'No se pudo restablecer la contraseña'));
+            }
+          },
+        },
+      ]
+    );
   }
 
   function handleDelete() {
@@ -152,42 +181,52 @@ export default function UserFormScreen() {
         <Field label="Correo" value={email} onChangeText={setEmail}
           placeholder="ej. jperez@macsalud.com" autoCapitalize="none" keyboardType="email-address" colors={colors} />
 
-        {/* Contraseña */}
-        <Text style={[styles.sLabel, { color: colors.textTertiary }]}>
-          {isEdit ? 'Restablecer contraseña' : 'Contraseña'}
-        </Text>
-        <Field
-          label={isEdit ? 'Nueva contraseña' : 'Contraseña'}
-          value={password}
-          onChangeText={setPassword}
-          placeholder={isEdit ? 'Dejar vacío para no cambiar' : 'Mínimo 4 caracteres'}
-          secureTextEntry
-          autoCapitalize="none"
-          colors={colors}
-        />
-        {isEdit && (
-          <Text style={[styles.hint, { color: colors.textDisabled }]}>
-            Si el usuario olvidó su contraseña, escribe una nueva aquí y guárdala.
-          </Text>
+        {!isEdit && (
+          <View style={[styles.notice, { backgroundColor: Colors.primary + '10', borderColor: Colors.primary + '25' }]}>
+            <Ionicons name="mail" size={16} color={Colors.primary} />
+            <Text style={[styles.noticeText, { color: colors.textSecondary }]}>
+              Se generará una contraseña temporal y se enviará al correo. El usuario deberá cambiarla en su primer ingreso.
+            </Text>
+          </View>
         )}
 
-        {/* Estado (solo edición) */}
+        {/* Rol */}
+        <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Rol</Text>
+        <View style={[styles.switchRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.switchLabel, { color: colors.text }]}>Administrador</Text>
+            <Text style={[styles.switchSub, { color: colors.textTertiary }]}>
+              Puede gestionar usuarios (crear, editar, restablecer)
+            </Text>
+          </View>
+          <Switch value={isAdmin} onValueChange={setIsAdmin} trackColor={{ true: Colors.primary }} />
+        </View>
+
+        {/* Seguridad (solo edición) */}
         {isEdit && (
           <>
-            <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Estado</Text>
-            <View style={[styles.switchRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Seguridad</Text>
+            <View style={[styles.switchRow, { backgroundColor: colors.surface, borderColor: colors.border, marginBottom: Spacing.md }]}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: colors.text }]}>Usuario activo</Text>
                 <Text style={[styles.switchSub, { color: colors.textTertiary }]}>
                   Si está inactivo no podrá iniciar sesión
                 </Text>
               </View>
-              <Switch
-                value={isActive}
-                onValueChange={setIsActive}
-                trackColor={{ true: Colors.primary }}
-              />
+              <Switch value={isActive} onValueChange={setIsActive} trackColor={{ true: Colors.primary }} />
             </View>
+            <TouchableOpacity
+              style={[styles.resetBtn, { borderColor: Colors.primary + '40', backgroundColor: Colors.primary + '10' }]}
+              onPress={handleResetPassword}
+              disabled={busy}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="key-outline" size={16} color={Colors.primary} />
+              <Text style={[styles.resetText, { color: Colors.primary }]}>Restablecer contraseña</Text>
+            </TouchableOpacity>
+            <Text style={[styles.hint, { color: colors.textDisabled }]}>
+              Envía una nueva contraseña temporal al correo del usuario (para casos de olvido).
+            </Text>
           </>
         )}
 
@@ -223,7 +262,7 @@ export default function UserFormScreen() {
             : <Text style={styles.saveText}>{isEdit ? 'Guardar cambios' : 'Crear usuario'}</Text>}
         </TouchableOpacity>
 
-        {/* Eliminar (solo edición, no admin) */}
+        {/* Eliminar (solo edición, no admin id=1) */}
         {isEdit && editing?.id !== 1 && (
           <TouchableOpacity
             style={[styles.deleteBtn, { borderColor: Colors.error + '40', backgroundColor: Colors.errorLight }]}
@@ -245,7 +284,6 @@ function Field({ label, colors, ...props }: {
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
-  secureTextEntry?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address';
   colors: any;
@@ -275,10 +313,14 @@ const styles = StyleSheet.create({
   readonly:      { borderWidth: 0.5, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: 10, marginBottom: Spacing.md },
   readonlyLabel: { fontSize: Typography.xs, marginBottom: 2 },
   readonlyValue: { fontSize: Typography.base, fontWeight: '500' },
-  hint:          { fontSize: Typography.xs, marginTop: -Spacing.xs, marginBottom: Spacing.xs, lineHeight: 16 },
+  notice:        { flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start', borderWidth: 0.5, borderRadius: Radius.md, padding: Spacing.md, marginTop: Spacing.xs },
+  noticeText:    { flex: 1, fontSize: Typography.xs, lineHeight: 16 },
+  hint:          { fontSize: Typography.xs, marginTop: Spacing.xs, lineHeight: 16 },
   switchRow:     { flexDirection: 'row', alignItems: 'center', borderWidth: 0.5, borderRadius: Radius.md, padding: Spacing.md, gap: Spacing.md },
   switchLabel:   { fontSize: Typography.base, fontWeight: '500' },
   switchSub:     { fontSize: Typography.xs, marginTop: 2 },
+  resetBtn:      { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, borderRadius: Radius.md, paddingVertical: 12, borderWidth: 0.5 },
+  resetText:     { fontSize: Typography.base, fontWeight: '600' },
   permCard:      { borderWidth: 0.5, borderRadius: Radius.md, paddingHorizontal: Spacing.md },
   permRow:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 },
   permLabel:     { fontSize: Typography.base },

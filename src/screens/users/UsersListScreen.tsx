@@ -80,6 +80,11 @@ export default function UsersListScreen() {
                     <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
                       {item.full_name || item.username}
                     </Text>
+                    {item.is_admin && (
+                      <View style={[styles.adminTag, { backgroundColor: Colors.secondary + '20' }]}>
+                        <Text style={[styles.adminTagText, { color: Colors.secondary }]}>Admin</Text>
+                      </View>
+                    )}
                     <View style={[styles.statusDot, { backgroundColor: item.is_active ? Colors.success : colors.textDisabled }]} />
                   </View>
                   <Text style={[styles.sub, { color: colors.textTertiary }]} numberOfLines={1}>
@@ -114,6 +119,8 @@ const styles = StyleSheet.create({
   nameRow:     { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   name:        { fontSize: Typography.base, fontWeight: '500', flexShrink: 1 },
   statusDot:   { width: 8, height: 8, borderRadius: 4 },
+  adminTag:    { paddingHorizontal: 6, paddingVertical: 1, borderRadius: Radius.full },
+  adminTagText:{ fontSize: 9, fontWeight: '700' },
   sub:         { fontSize: Typography.xs, marginTop: 2 },
   perm:        { fontSize: 10, marginTop: 2 },
 });
