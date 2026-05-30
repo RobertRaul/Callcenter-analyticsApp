@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { analisisApi } from '../services/analisisApi';
+import { todayStr, weekStartStr } from '../lib/dateHelpers';
 
-const TODAY      = new Date().toISOString().split('T')[0];
-const WEEK_START = (() => { const d = new Date(); d.setDate(d.getDate() - 6); return d.toISOString().split('T')[0]; })();
-
-export function useRanking(startDate = TODAY, endDate = TODAY) {
+export function useRanking(startDate = todayStr(), endDate = todayStr()) {
   return useQuery({
     queryKey: ['analisis', 'ranking', startDate, endDate],
     queryFn:  () => analisisApi.getRanking({ start_date: startDate, end_date: endDate }),
@@ -12,7 +10,7 @@ export function useRanking(startDate = TODAY, endDate = TODAY) {
   });
 }
 
-export function useSla(startDate = TODAY, endDate = TODAY) {
+export function useSla(startDate = todayStr(), endDate = todayStr()) {
   return useQuery({
     queryKey: ['analisis', 'sla', startDate, endDate],
     queryFn:  () => analisisApi.getSla({ start_date: startDate, end_date: endDate }),
@@ -20,7 +18,7 @@ export function useSla(startDate = TODAY, endDate = TODAY) {
   });
 }
 
-export function usePatrones(startDate = TODAY, endDate = TODAY) {
+export function usePatrones(startDate = todayStr(), endDate = todayStr()) {
   return useQuery({
     queryKey: ['analisis', 'patrones', startDate, endDate],
     queryFn:  () => analisisApi.getPatrones({ start_date: startDate, end_date: endDate }),
@@ -28,7 +26,7 @@ export function usePatrones(startDate = TODAY, endDate = TODAY) {
   });
 }
 
-export function useHeatmap(startDate = WEEK_START, endDate = TODAY) {
+export function useHeatmap(startDate = weekStartStr(), endDate = todayStr()) {
   return useQuery({
     queryKey: ['analisis', 'heatmap', startDate, endDate],
     queryFn:  () => analisisApi.getHeatmap({ start_date: startDate, end_date: endDate }),
@@ -36,7 +34,7 @@ export function useHeatmap(startDate = WEEK_START, endDate = TODAY) {
   });
 }
 
-export function useAbandono(startDate = TODAY, endDate = TODAY) {
+export function useAbandono(startDate = todayStr(), endDate = todayStr()) {
   return useQuery({
     queryKey: ['analisis', 'abandono', startDate, endDate],
     queryFn:  () => analisisApi.getAbandono({ start_date: startDate, end_date: endDate }),

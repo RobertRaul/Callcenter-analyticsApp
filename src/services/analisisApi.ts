@@ -1,5 +1,6 @@
 import apiClient from '../lib/apiClient';
 import logger from '../lib/logger';
+import { todayStr, weekStartStr } from '../lib/dateHelpers';
 
 function unwrap(raw: unknown): unknown {
   if (raw && typeof raw === 'object' && 'data' in (raw as any)) {
@@ -102,13 +103,6 @@ export interface AbandonoData {
 }
 
 // ─── API ──────────────────────────────────────────────────────────────────────
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function weekStartStr() {
-  const d = new Date();
-  d.setDate(d.getDate() - 6);
-  return d.toISOString().split('T')[0];
-}
 
 export const analisisApi = {
   getRanking: async (params?: { start_date?: string; end_date?: string; metric?: string }): Promise<RankingData> => {

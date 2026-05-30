@@ -38,3 +38,15 @@ export function extractArray<T>(data: unknown, keys: string[], context = 'api'):
   logger.warn(context, 'No se encontró array en la respuesta', { data });
   return [];
 }
+
+// ─── Normalización de estado de agente ──────────────────────────────────────
+// Unión de los mapeos que antes vivían (divergentes) en dashboardApi y agentsApi.
+export type AgentStatus = 'available' | 'on_call' | 'paused' | 'offline';
+
+export function normalizeAgentStatus(raw: string): AgentStatus {
+  const s = (raw ?? '').toUpperCase();
+  if (['AVAILABLE', 'FREE', 'IDLE', 'COMPLETEAGENT', 'COMPLETECALLER', 'ABANDON', 'EXITEMPTY'].includes(s)) return 'available';
+  if (['IN_CALL', 'INCALL', 'BUSY', 'ON_CALL', 'CONNECT', 'RINGING'].includes(s)) return 'on_call';
+  if (['PAUSED', 'PAUSE', 'BREAK'].includes(s)) return 'paused';
+  return 'offline';
+}

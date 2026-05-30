@@ -1,5 +1,6 @@
 import apiClient from '../lib/apiClient';
 import logger from '../lib/logger';
+import { normalizeAgentStatus, type AgentStatus } from '../lib/apiHelpers';
 
 // ─── Tipos exactos según respuestas reales ────────────────────────────────────
 
@@ -71,16 +72,9 @@ export interface DashboardEjecutivo {
   hourly_distribution: HourlyItem[];
 }
 
-// Status de agente → normalizado
-export type AgentStatus = 'available' | 'on_call' | 'paused' | 'offline';
-
-export function normalizeAgentStatus(raw: string): AgentStatus {
-  const s = (raw ?? '').toUpperCase();
-  if (['AVAILABLE', 'FREE', 'IDLE', 'COMPLETEAGENT', 'COMPLETECALLER'].includes(s)) return 'available';
-  if (['IN_CALL', 'INCALL', 'BUSY', 'ON_CALL', 'CONNECT', 'RINGING'].includes(s))   return 'on_call';
-  if (['PAUSED', 'PAUSE', 'BREAK'].includes(s))                                      return 'paused';
-  return 'offline';
-}
+// Status de agente → normalizado (implementación canónica en lib/apiHelpers)
+export { normalizeAgentStatus };
+export type { AgentStatus };
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 

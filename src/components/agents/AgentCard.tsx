@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { RealtimeAgent, AgentStatistics } from '../../services/agentsApi';
+import { formatDuration } from '../../lib/format';
+import { getInitials } from '../../lib/text';
 
 interface AgentCardProps {
   agent: RealtimeAgent;
@@ -14,17 +16,6 @@ export const STATUS_CONFIG = {
   paused:    { label: 'Pausa',      color: '#fbbf24', bg: '#2a1c08', border: '#5c3a0e' },
   offline:   { label: 'Fuera',      color: '#718096', bg: '#1a1a1a', border: '#2d2d2d' },
 };
-
-function formatDuration(s: number): string {
-  if (!s) return '—';
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
-}
-
-function getInitials(name: string): string {
-  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-}
 
 export default function AgentCard({ agent, stats, onPress }: AgentCardProps) {
   const cfg = STATUS_CONFIG[agent.status] ?? STATUS_CONFIG.offline;

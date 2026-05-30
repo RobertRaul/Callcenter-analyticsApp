@@ -1,6 +1,6 @@
 import apiClient from '../lib/apiClient';
 import logger from '../lib/logger';
-import { unwrapResponse, extractArray } from '../lib/apiHelpers';
+import { unwrapResponse, extractArray, normalizeAgentStatus } from '../lib/apiHelpers';
 
 export interface RealtimeAgent {
   agent: string;
@@ -55,15 +55,6 @@ export interface AgentsFilters {
   agent?: string;
 }
 
-function normalizeStatus(raw: string): RealtimeAgent['status'] {
-  const s = (raw ?? '').toUpperCase();
-  if (s === 'AVAILABLE' || s === 'FREE')                              return 'available';
-  if (s === 'BUSY' || s === 'INCALL' || s === 'ON_CALL')             return 'on_call';
-  if (s === 'PAUSED' || s === 'PAUSE')                               return 'paused';
-  if (['COMPLETEAGENT','COMPLETECALLER','ABANDON','EXITEMPTY'].includes(s)) return 'available';
-  return 'offline';
-}
-
 export const agentsApi = {
   getRealtime: async (): Promise<RealtimeAgent[]> => {
     const { data } = await apiClient.get('/agents/realtime');
@@ -72,7 +63,7 @@ export const agentsApi = {
     return raw.map(a => ({
       agent:      String(a.agent      ?? a.name      ?? ''),
       name:       String(a.agent_full ?? a.agent     ?? a.name ?? ''),
-      status:     normalizeStatus(String(a.status ?? 'offline')),
+      status:     normalizeAgentStatus(String(a.status ?? 'offline')),
       queue:      String(a.queue      ?? a.queue_name ?? ''),
       duration:   a.duration != null ? Number(a.duration) : undefined,
       last_event: a.last_event ? String(a.last_event) : undefined,
@@ -86,7 +77,7 @@ export const agentsApi = {
     return raw.map(a => ({
       agent:  String(a.agent ?? a.name ?? a.id ?? ''),
       name:   String(a.agent_full ?? a.agent ?? a.name ?? ''),
-      status: normalizeStatus(String(a.status ?? 'offline')),
+      status: normalizeAgentStatus(String(a.status ?? 'offline')),
       queue:  String(a.queue ?? ''),
     }));
   },

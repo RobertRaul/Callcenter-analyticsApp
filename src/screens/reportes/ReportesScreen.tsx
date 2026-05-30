@@ -8,6 +8,7 @@ import {
   downloadReport, shareReport,
   ReportType, ReportFormat, DownloadProgress,
 } from '../../services/reportesApi';
+import { todayStr, yesterdayStr, nDaysAgoStr } from '../../lib/dateHelpers';
 import { useTheme } from '../../theme/ThemeContext';
 import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
@@ -48,16 +49,6 @@ function Icon({ name, size = 20, color }: { name: string; size?: number; color: 
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function yesterdayStr() {
-  const d = new Date(); d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
-}
-function nDaysAgoStr(n: number) {
-  const d = new Date(); d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
-}
 
 type DatePreset = 'today' | 'yesterday' | 'week' | 'month' | 'custom';
 

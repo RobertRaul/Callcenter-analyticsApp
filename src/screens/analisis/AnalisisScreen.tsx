@@ -12,15 +12,11 @@ import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
 import Card from '../../components/ui/Card';
 import { Divider } from '../../components/ui/misc';
+import { formatDuration } from '../../lib/format';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function fmtSec(s: number): string {
-  if (!s || s <= 0) return '0s';
-  const m = Math.floor(s / 60);
-  const sec = Math.round(s % 60);
-  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
-}
+const fmtSec = (s: number): string => formatDuration(s, { empty: '0s' });
 
 function fmtPct(n: number): string {
   return `${Math.round(n * 10) / 10}%`;

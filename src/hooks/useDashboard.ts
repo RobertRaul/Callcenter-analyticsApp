@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../services/dashboardApi';
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+import { todayStr } from '../lib/dateHelpers';
 
 // Datos principales: today, yesterday, week, queues, agents
 export function useDashboardSummary() {

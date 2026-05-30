@@ -8,6 +8,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CallsStackParamList } from '../../navigation/CallsNavigator';
 import { useCallsList } from '../../hooks/useCalls';
 import { CallsFilters, Call, FILTER_GROUPS, STATUS_MAP } from '../../services/callsApi';
+import { todayStr, toDateStr } from '../../lib/dateHelpers';
 import CallItem from '../../components/calls/CallItem';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../lib/apiClient';
@@ -16,8 +17,6 @@ import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
 
 type Props = NativeStackScreenProps<CallsStackParamList, 'CallsList'>;
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
 
 const QUICK_DATES = [
   { label: 'Hoy',     days: 0  },
@@ -31,7 +30,7 @@ function getRange(days: number) {
   if (days === 0) return { start_date: end, end_date: end };
   const start = new Date(today);
   start.setDate(start.getDate() - days);
-  return { start_date: start.toISOString().split('T')[0], end_date: end };
+  return { start_date: toDateStr(start), end_date: end };
 }
 
 export default function CallsListScreen({ navigation }: Props) {
@@ -43,14 +42,11 @@ export default function CallsListScreen({ navigation }: Props) {
   const [selectedQueue, setSelectedQueue] = useState<string | undefined>();
   const [search, setSearch]             = useState('');
 
-  // Construir filtro de status para la API
-  // La API acepta un status individual, así que para "no contestó" hacemos filtro local
+  // El backend /calls/list solo filtra por start_date/end_date/queue/limit
+  // (NO soporta filtrar por status), así que el filtro por grupo se aplica en cliente.
   const apiFilters: CallsFilters = {
     ...dateRange,
     queue: selectedQueue,
-    // Solo pasamos status a la API para COMPLETED (respondidas)
-    // Para "no contestó" traemos todo y filtramos local
-    status: filterGroup === 'answered' ? 'COMPLETED' : undefined,
   };
 
   const { data, isLoading, refetch, isRefetching, error } = useCallsList(apiFilters);
@@ -68,9 +64,11 @@ export default function CallsListScreen({ navigation }: Props) {
     staleTime: 10 * 60_000,
   });
 
-  // Filtro local para "no contestó" (múltiples status)
+  // Filtro local por grupo (el backend no soporta filtrar por status)
   let allCalls = (data?.calls ?? []).filter(c => c?.callid);
-  if (filterGroup === 'missed') {
+  if (filterGroup === 'answered') {
+    allCalls = allCalls.filter(c => c.status === 'COMPLETED' || c.status === 'ANSWERED');
+  } else if (filterGroup === 'missed') {
     const missedStatuses = new Set(['ABANDONED', 'TIMEOUT', 'FULL']);
     allCalls = allCalls.filter(c => missedStatuses.has(c.status));
   }

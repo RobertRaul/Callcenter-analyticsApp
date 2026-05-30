@@ -14,15 +14,11 @@ import Card from '../../components/ui/Card';
 import KPICard from '../../components/ui/KPICard';
 import StatusPill from '../../components/ui/StatusPill';
 import { LoadingView, SectionHeader, Divider } from '../../components/ui/misc';
+import { formatDuration } from '../../lib/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmtSec(s: number): string {
-  if (!s || s <= 0) return '0s';
-  const m = Math.floor(s / 60);
-  const sec = Math.round(s % 60);
-  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
-}
+const fmtSec = (s: number): string => formatDuration(s, { empty: '0s' });
 
 function fmtPct(n: number): string {
   return `${Math.round(n)}%`;
@@ -185,7 +181,7 @@ export default function DashboardScreen() {
   const answered      = hoy?.answered_calls   ?? 0;
   const abandoned     = hoy?.abandoned_calls  ?? 0;
   const answerRate    = hoy?.answer_rate       ?? 0;
-  const avgWait   = hoy?.avg_wait_time     ?? hoy?.avg_wait_time     ?? 0;
+  const avgWait       = hoy?.avg_wait_time     ?? 0;
   const avgDuration   = hoy?.avg_duration      ?? 0;
   const maxWait       = hoy?.max_wait_time     ?? 0;
   const abandonRate   = total > 0 ? (abandoned / total) * 100 : 0;

@@ -94,7 +94,7 @@ export default function AudioPlayer({ callid, date, duration: expectedDuration }
 
       if (!result?.uri) throw new Error('Descarga incompleta');
 
-      logger.debug('AudioPlayer', `Listo: ${result.uri} (${Math.round((result as any).headers?.['content-length'] / 1024 ?? 0)}KB)`);
+      logger.debug('AudioPlayer', `Listo: ${result.uri} (${Math.round(((result as any).headers?.['content-length'] ?? 0) / 1024)}KB)`);
       setLocalUri(result.uri);
       setLoadState('ready');
 

@@ -8,17 +8,13 @@ import { AgentsStackParamList } from '../../navigation/AgentsNavigator';
 import { useAgentDetail, useAgentStatistics } from '../../hooks/useAgents';
 import { STATUS_CONFIG } from '../../components/agents/AgentCard';
 import AgentHourlyChart from '../../components/agents/AgentHourlyChart';
+import { todayStr } from '../../lib/dateHelpers';
+import { formatDuration } from '../../lib/format';
+import { getInitials } from '../../lib/text';
 
 type Props = NativeStackScreenProps<AgentsStackParamList, 'AgentDetail'>;
 
 type Tab = 'resumen' | 'colas' | 'historial';
-
-function formatDuration(s: number): string {
-  if (!s) return '—';
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
-}
 
 function formatDate(d: string): string {
   return new Date(d).toLocaleString('es-PE', {
@@ -53,8 +49,8 @@ export default function AgentDetailScreen({ route, navigation }: Props) {
   const { agent } = route.params;
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const filters  = { start_date: todayStr, end_date: todayStr };
+  const today    = todayStr();
+  const filters  = { start_date: today, end_date: today };
 
   const { byQueue, hourly, history } = useAgentDetail(agent.agent, filters);
   const { data: allStats = [] } = useAgentStatistics(filters);
@@ -62,7 +58,7 @@ export default function AgentDetailScreen({ route, navigation }: Props) {
 
   const cfg = STATUS_CONFIG[agent.status] ?? STATUS_CONFIG.offline;
   const displayName = agent.name ?? agent.agent;
-  const initials = displayName.split(' ').map((n:string) => n[0]).slice(0,2).join('').toUpperCase();
+  const initials = getInitials(displayName);
 
   const TABS: { key: Tab; label: string }[] = [
     { key:'resumen',  label:'Resumen'  },

@@ -14,6 +14,9 @@ import { Colors, Typography, Spacing, Radius } from '../../theme/theme';
 import AppHeader from '../../components/ui/AppHeader';
 import StatusPill, { STATUS_CONFIG_LIGHT, STATUS_CONFIG_DARK } from '../../components/ui/StatusPill';
 import { Divider } from '../../components/ui/misc';
+import { todayStr } from '../../lib/dateHelpers';
+import { formatDuration } from '../../lib/format';
+import { getInitials } from '../../lib/text';
 
 type Props = NativeStackScreenProps<AgentsStackParamList, 'AgentsList'>;
 type StatusFilter = 'all' | 'available' | 'on_call' | 'paused' | 'offline';
@@ -25,19 +28,6 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key:'paused',    label:'Pausa'      },
   { key:'offline',   label:'Fuera'      },
 ];
-
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-
-function formatDuration(s: number): string {
-  if (!s) return '—';
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
-}
-
-function getInitials(name: string): string {
-  return (name ?? '').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '??';
-}
 
 export default function AgentsListScreen({ navigation }: Props) {
   const { colors, isDark } = useTheme();   // ← useTheme correcto
@@ -76,8 +66,8 @@ export default function AgentsListScreen({ navigation }: Props) {
   }, [navigation]);
 
   // Tarjetas de resumen de estado
-  const StatusCard = ({ statusKey }: { statusKey: string }) => {
-    const cfg = isDark ? STATUS_CONFIG_DARK[statusKey as any] : STATUS_CONFIG_LIGHT[statusKey as any];
+  const StatusCard = ({ statusKey }: { statusKey: 'available' | 'on_call' | 'paused' | 'offline' }) => {
+    const cfg = isDark ? STATUS_CONFIG_DARK[statusKey] : STATUS_CONFIG_LIGHT[statusKey];
     if (!cfg) return null;
     return (
       <View style={[styles.summaryCard, { backgroundColor: cfg.bg }]}>
