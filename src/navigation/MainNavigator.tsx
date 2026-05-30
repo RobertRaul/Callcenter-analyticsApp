@@ -15,6 +15,9 @@ import AlertsScreen     from '../screens/alerts/AlertsScreen';
 import ReportesScreen   from '../screens/reportes/ReportesScreen';
 import ProfileScreen    from '../screens/profile/ProfileScreen';
 import DebugScreen      from '../screens/debug/DebugScreen';
+import UsersListScreen  from '../screens/users/UsersListScreen';
+import UserFormScreen   from '../screens/users/UserFormScreen';
+import { AppUser }      from '../types';
 
 export type MainTabParamList = {
   Dashboard:  undefined;
@@ -91,8 +94,10 @@ function TabNavigator() {
 }
 
 export type MainStackParamList = {
-  Tabs:  undefined;
-  Debug: undefined;
+  Tabs:     undefined;
+  Debug:    undefined;
+  Users:    undefined;
+  UserForm: { user?: AppUser } | undefined;
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -103,6 +108,9 @@ export default function MainNavigator() {
       <Stack.Screen name="Tabs"  component={TabNavigator} />
       <Stack.Screen name="Debug" component={DebugScreen}
         options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="Users"    component={UsersListScreen} />
+      <Stack.Screen name="UserForm" component={UserFormScreen}
+        options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }

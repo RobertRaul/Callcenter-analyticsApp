@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/authStore';
 import { useAuth } from '../../hooks/useAuth';
 import { authApi } from '../../services/authApi';
@@ -177,6 +178,27 @@ export default function ProfileScreen() {
             {' '}— {isDark ? 'modo oscuro' : 'modo claro'}
           </Text>
         </View>
+
+        {/* Administración */}
+        <Text style={[styles.sLabel, { color: colors.textTertiary }]}>Administración</Text>
+        <Card noPadding>
+          <TouchableOpacity
+            style={styles.debugRow}
+            onPress={() => navigation.navigate('Users')}
+            activeOpacity={0.75}
+          >
+            <View style={[styles.themeIconWrap, { backgroundColor: Colors.primary + '15' }]}>
+              <Ionicons name="people" size={18} color={Colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.themeLabel, { color: colors.text }]}>Gestión de usuarios</Text>
+              <Text style={[styles.themeDesc, { color: colors.textTertiary }]}>
+                Crear, editar y restablecer contraseñas
+              </Text>
+            </View>
+            <Text style={[styles.chevron, { color: colors.textDisabled }]}>›</Text>
+          </TouchableOpacity>
+        </Card>
 
         {/* Desarrollo */}
         {__DEV__ && (
