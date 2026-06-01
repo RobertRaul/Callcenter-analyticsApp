@@ -15,15 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#2196C9',
   },
 
-  ios: {
-    supportsTablet:   true,
-    bundleIdentifier: 'com.macsalud.callcenter',
-    buildNumber:      '1',
-    // Para notificaciones push en iOS necesitas entitlements
-    entitlements: {
-      'aps-environment': 'production',
-    },
-  },
+  // App solo para Android / Google Play (sin soporte iOS).
 
   android: {
     adaptiveIcon: {
@@ -60,9 +52,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           compileSdkVersion:    36,
           targetSdkVersion:     36,
           minSdkVersion:        24,
-        },
-        ios: {
-          deploymentTarget: '15.1',
         },
       },
     ],

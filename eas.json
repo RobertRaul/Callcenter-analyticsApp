@@ -11,9 +11,6 @@
         "buildType": "apk",
         "gradleCommand": ":app:assembleDebug"
       },
-      "ios": {
-        "simulator": true
-      },
       "env": {
         "APP_ENV": "development",
         "API_URL": "https://metricas.macsalud.com/api"
@@ -24,9 +21,6 @@
       "android": {
         "buildType": "apk"
       },
-      "ios": {
-        "simulator": false
-      },
       "env": {
         "APP_ENV": "staging",
         "API_URL": "https://metricas.macsalud.com/api"
@@ -36,9 +30,6 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      },
-      "ios": {
-        "simulator": false
       },
       "env": {
         "APP_ENV": "production",
@@ -51,11 +42,6 @@
       "android": {
         "serviceAccountKeyPath": "./google-play-key.json",
         "track": "internal"
-      },
-      "ios": {
-        "appleId": "tu@email.com",
-        "ascAppId": "TU_APP_STORE_ID",
-        "appleTeamId": "TU_TEAM_ID"
       }
     }
   }
