@@ -96,8 +96,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
 // Notificación local — en Expo Go usamos una alternativa simple sin expo-notifications
 export async function sendLocalNotification(alert: PushAlert): Promise<void> {
   if (isExpoGo()) {
-    // En Expo Go no podemos enviar notificaciones del sistema
-    // Solo guardamos en el store local (useAlerts lo hace directamente)
+    // En Expo Go no se pueden enviar notificaciones del sistema; solo se registra en logs.
     logger.info('Notifications', `[Local] ${alert.title}: ${alert.body}`);
     return;
   }

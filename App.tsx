@@ -8,7 +8,6 @@ import { useAuthStore } from './src/stores/authStore';
 import { sessionExpiredEmitter } from './src/lib/apiClient';
 import { ThemeProvider } from './src/theme/ThemeContext';
 import { useNotifications } from './src/hooks/useNotifications';
-import { useAlerts } from './src/hooks/useAlerts';
 import { initNotificationHandler } from './src/services/notificationsService';
 
 import AuthNavigator        from './src/navigation/AuthNavigator';
@@ -23,7 +22,6 @@ const RootStack = createNativeStackNavigator();
 
 function AppServices() {
   useNotifications();
-  useAlerts();
   return null;
 }
 

@@ -5,13 +5,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { Colors } from '../theme/theme';
-import { useAlertsStore } from '../stores/alertsStore';
 
 import DashboardScreen  from '../screens/dashboard/DashboardScreen';
 import CallsNavigator   from './CallsNavigator';
 import AgentsNavigator  from './AgentsNavigator';
 import AnalisisScreen   from '../screens/analisis/AnalisisScreen';
-import AlertsScreen     from '../screens/alerts/AlertsScreen';
 import ReportesScreen   from '../screens/reportes/ReportesScreen';
 import ProfileScreen    from '../screens/profile/ProfileScreen';
 import DebugScreen      from '../screens/debug/DebugScreen';
@@ -26,7 +24,6 @@ export type MainTabParamList = {
   Agents:     undefined;
   Analisis:   undefined;
   Reportes:   undefined;
-  Alerts:     undefined;
   ProfileTab: undefined;
 };
 
@@ -58,7 +55,6 @@ function TabIcon({ name, color, focused, badge }: { name: IoniconName; color: st
 
 function TabNavigator() {
   const { colors } = useTheme();
-  const unreadCount = useAlertsStore(s => s.unreadCount);
 
   return (
     <Tab.Navigator
@@ -86,8 +82,6 @@ function TabNavigator() {
         options={{ tabBarLabel:'Análisis',  tabBarIcon:({color,focused}) => <TabIcon name="analytics" color={color} focused={focused} /> }} />
       <Tab.Screen name="Reportes"  component={ReportesScreen}
         options={{ tabBarLabel:'Reportes',  tabBarIcon:({color,focused}) => <TabIcon name="document-text" color={color} focused={focused} /> }} />
-      <Tab.Screen name="Alerts"    component={AlertsScreen}
-        options={{ tabBarLabel:'Alertas',   tabBarIcon:({color,focused}) => <TabIcon name="notifications" color={color} focused={focused} badge={unreadCount} /> }} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen}
         options={{ tabBarLabel:'Perfil',    tabBarIcon:({color,focused}) => <TabIcon name="person-circle" color={color} focused={focused} /> }} />
     </Tab.Navigator>
