@@ -5,16 +5,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { Colors } from '../theme/theme';
-import { useAlertsStore } from '../stores/alertsStore';
 
 import DashboardScreen  from '../screens/dashboard/DashboardScreen';
 import CallsNavigator   from './CallsNavigator';
 import AgentsNavigator  from './AgentsNavigator';
 import AnalisisScreen   from '../screens/analisis/AnalisisScreen';
-import AlertsScreen     from '../screens/alerts/AlertsScreen';
 import ReportesScreen   from '../screens/reportes/ReportesScreen';
 import ProfileScreen    from '../screens/profile/ProfileScreen';
 import DebugScreen      from '../screens/debug/DebugScreen';
+import UsersListScreen  from '../screens/users/UsersListScreen';
+import UserFormScreen   from '../screens/users/UserFormScreen';
+import ChangePasswordScreen from '../screens/auth/ChangePasswordScreen';
+import { AppUser }      from '../types';
 
 export type MainTabParamList = {
   Dashboard:  undefined;
@@ -22,7 +24,6 @@ export type MainTabParamList = {
   Agents:     undefined;
   Analisis:   undefined;
   Reportes:   undefined;
-  Alerts:     undefined;
   ProfileTab: undefined;
 };
 
@@ -54,7 +55,6 @@ function TabIcon({ name, color, focused, badge }: { name: IoniconName; color: st
 
 function TabNavigator() {
   const { colors } = useTheme();
-  const unreadCount = useAlertsStore(s => s.unreadCount);
 
   return (
     <Tab.Navigator
@@ -82,8 +82,6 @@ function TabNavigator() {
         options={{ tabBarLabel:'Análisis',  tabBarIcon:({color,focused}) => <TabIcon name="analytics" color={color} focused={focused} /> }} />
       <Tab.Screen name="Reportes"  component={ReportesScreen}
         options={{ tabBarLabel:'Reportes',  tabBarIcon:({color,focused}) => <TabIcon name="document-text" color={color} focused={focused} /> }} />
-      <Tab.Screen name="Alerts"    component={AlertsScreen}
-        options={{ tabBarLabel:'Alertas',   tabBarIcon:({color,focused}) => <TabIcon name="notifications" color={color} focused={focused} badge={unreadCount} /> }} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen}
         options={{ tabBarLabel:'Perfil',    tabBarIcon:({color,focused}) => <TabIcon name="person-circle" color={color} focused={focused} /> }} />
     </Tab.Navigator>
@@ -91,8 +89,11 @@ function TabNavigator() {
 }
 
 export type MainStackParamList = {
-  Tabs:  undefined;
-  Debug: undefined;
+  Tabs:           undefined;
+  Debug:          undefined;
+  Users:          undefined;
+  UserForm:       { user?: AppUser } | undefined;
+  ChangePassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -103,6 +104,11 @@ export default function MainNavigator() {
       <Stack.Screen name="Tabs"  component={TabNavigator} />
       <Stack.Screen name="Debug" component={DebugScreen}
         options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="Users"    component={UsersListScreen} />
+      <Stack.Screen name="UserForm" component={UserFormScreen}
+        options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="ChangePassword" component={ChangePasswordScreen}
+        options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }

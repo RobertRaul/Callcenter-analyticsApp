@@ -59,3 +59,6 @@ google-play-key.json
 .vscode/
 .claude/
 .fleet/
+
+# Snapshot local del contrato (no versionar)
+docs/api/openapi.snapshot.json

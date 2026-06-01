@@ -11,14 +11,28 @@ export interface UserPermissions {
   queues: boolean;
   agents: boolean;
   reports: boolean;
+  admin: boolean;
 }
 
 export interface User {
   id: number;
   username: string;
   email: string;
-  full_name: string;           // ← API devuelve "full_name", no "name"
-  permissions: UserPermissions; // ← en lugar de "role"
+  full_name: string;             // ← API devuelve "full_name", no "name"
+  is_admin: boolean;             // ← solo admins pueden gestionar usuarios
+  must_change_password: boolean; // ← true tras crear/resetear: cambio obligatorio
+  permissions: UserPermissions;  // ← en lugar de "role"
+}
+
+// ─── Cambio / recuperación de contraseña ────────────────────────────────────
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
 }
 
 export interface AuthResponse {
@@ -175,6 +189,8 @@ export interface AppUser {
   email: string;
   full_name: string;
   is_active: boolean;
+  is_admin: boolean;
+  must_change_password?: boolean;
   access_dashboard: boolean;
   access_calls: boolean;
   access_queues: boolean;
@@ -182,11 +198,13 @@ export interface AppUser {
   access_reports: boolean;
 }
 
+// ⚠️ Al crear, el backend genera una contraseña temporal y la envía por correo
+// (must_change_password = true). Por eso NO se envía password aquí.
 export interface UserCreate {
   username: string;
   email: string;
-  password: string;
   full_name: string;
+  is_admin?: boolean;
   access_dashboard?: boolean;
   access_calls?: boolean;
   access_queues?: boolean;
@@ -199,11 +217,22 @@ export interface UserUpdate {
   password?: string | null;
   full_name?: string | null;
   is_active?: boolean | null;
+  is_admin?: boolean | null;
   access_dashboard?: boolean | null;
   access_calls?: boolean | null;
   access_queues?: boolean | null;
   access_agents?: boolean | null;
   access_reports?: boolean | null;
+}
+
+// Respuesta de creación / reset: el backend puede devolver la temporal de
+// fallback si el correo no se pudo enviar.
+export interface UserPasswordActionResponse {
+  success?: boolean;
+  message?: string;
+  id?: number;
+  email_sent?: boolean;
+  temp_password?: string;
 }
 
 // ─── API genérica ─────────────────────────────────────────────────────────────

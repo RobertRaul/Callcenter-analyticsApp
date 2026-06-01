@@ -6,14 +6,14 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './src/lib/queryClient';
 import { useAuthStore } from './src/stores/authStore';
 import { sessionExpiredEmitter } from './src/lib/apiClient';
-import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
+import { ThemeProvider } from './src/theme/ThemeContext';
 import { useNotifications } from './src/hooks/useNotifications';
-import { useAlerts } from './src/hooks/useAlerts';
 import { initNotificationHandler } from './src/services/notificationsService';
 
-import AuthNavigator  from './src/navigation/AuthNavigator';
-import MainNavigator  from './src/navigation/MainNavigator';
-import SplashContent  from './src/components/SplashContent';
+import AuthNavigator        from './src/navigation/AuthNavigator';
+import MainNavigator        from './src/navigation/MainNavigator';
+import SplashContent        from './src/components/SplashContent';
+import ChangePasswordScreen from './src/screens/auth/ChangePasswordScreen';
 
 // Inicializar handler de notificaciones al cargar el módulo
 initNotificationHandler();
@@ -22,13 +22,11 @@ const RootStack = createNativeStackNavigator();
 
 function AppServices() {
   useNotifications();
-  useAlerts();
   return null;
 }
 
 function RootNavigator() {
-  const { isAuthenticated, isLoading, restoreSession, logout } = useAuthStore();
-  const { colors } = useTheme();
+  const { isAuthenticated, isLoading, restoreSession, logout, user } = useAuthStore();
 
   useEffect(() => { restoreSession(); }, []);
 
@@ -41,14 +39,21 @@ function RootNavigator() {
   // Mostrar splash MACSA animado mientras carga
   if (isLoading) return <SplashContent />;
 
+  // Tras login/restauración: si debe cambiar la contraseña temporal, se fuerza
+  // esa pantalla antes de dar acceso al resto de la app.
+  const mustChange = isAuthenticated && !!user?.must_change_password;
+
   return (
     <>
-      {isAuthenticated && <AppServices />}
+      {isAuthenticated && !mustChange && <AppServices />}
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated
-          ? <RootStack.Screen name="Main" component={MainNavigator} />
-          : <RootStack.Screen name="Auth" component={AuthNavigator} />
-        }
+        {!isAuthenticated ? (
+          <RootStack.Screen name="Auth" component={AuthNavigator} />
+        ) : mustChange ? (
+          <RootStack.Screen name="ForceChange" component={ChangePasswordScreen} initialParams={{ forced: true }} />
+        ) : (
+          <RootStack.Screen name="Main" component={MainNavigator} />
+        )}
       </RootStack.Navigator>
     </>
   );

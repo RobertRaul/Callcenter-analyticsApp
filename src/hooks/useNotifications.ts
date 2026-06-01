@@ -55,7 +55,7 @@ export function useNotifications() {
             navigation.navigate('Tabs', { screen: 'Agents' });
             break;
           default:
-            navigation.navigate('Tabs', { screen: 'Alerts' });
+            navigation.navigate('Tabs', { screen: 'Dashboard' });
         }
       }
     ).then(fn => { cleanup = fn; });
